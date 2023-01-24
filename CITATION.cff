@@ -5,8 +5,8 @@ cff-version: 1.2.0
 title: MediaPipe Proctoring Toolkit
 message: >-
   "If you use this software for research, please cite it using
-  these metadata.
-type: misc
+  these metadata."
+type: software
 authors:
   - given-names: Thiha
     email: saw1996.dev@gmail.com

@@ -32,3 +32,13 @@ If there is no build error, you can run the application using the following comm
 GLOG_logtostderr=1 bazel-bin/mp_proctor/demo_app \                     
   --calculator_graph_config_file=mp_proctor/graphs/face_mesh/full/face_mesh_desktop_live.pbtxt
 ```
+
+## Troubleshooting
+
+### Build errors
+#### `fatal error: 'opencv2/core/version.hpp' file not found`
+This error occurs when OpenCV installation or config is not detected. If you are on Linux, you can solve this by running the `setup_opencv.sh` provided by Mediapipe. You can find it in the root directory of MediaPipe.
+```sh
+chmod +x setup_opencv.sh
+./setup_opencv.sh
+```
