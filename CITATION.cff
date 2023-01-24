@@ -24,3 +24,13 @@ keywords:
   - Facial Activity
   - Face Movement
 license: Apache-2.0
+preferred-citation:
+  authors:
+    - family-names: Saw
+      given-names: Thiha
+  title: MediaPipe Proctoring Toolkit
+  type: generic
+  identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7564213
+  url: https://github.com/sawthiha/mp_proctor.git
