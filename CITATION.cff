@@ -31,7 +31,7 @@ preferred-citation:
   title: MediaPipe Proctoring Toolkit
   type: generic
   doi: 10.5281/zenodo.7564213
-  medium: GitHub at https://github.com/sawthiha/mp_proctor.git
+  medium: GitHub \url{https://github.com/sawthiha/mp_proctor.git}
   identifiers:
   - type: doi
     value: 10.5281/zenodo.7564213
