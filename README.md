@@ -1,4 +1,9 @@
 # MediaPipe Proctoring Toolkit
+
+<div align="center">
+[![DOI](https://zenodo.org/badge/592611238.svg)](https://zenodo.org/badge/latestdoi/592611238)
+</div>
+
 This repository presents face analytic algorithms for proctoring purposes based on [MediaPipe](https://github.com/google/mediapipe.git) framework.
 
 ## Features

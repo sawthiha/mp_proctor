@@ -4,12 +4,23 @@
 cff-version: 1.2.0
 title: MediaPipe Proctoring Toolkit
 message: >-
-  "If you use this software for research, please cite it using
-  these metadata."
+  "If you use this software for research, please cite it
+  using these metadata."
 type: software
 authors:
   - given-names: Thiha
     email: saw1996.dev@gmail.com
     orcid: 'https://orcid.org/0000-0002-4050-0267'
     family-names: Saw
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7564213
 repository-code: 'https://github.com/sawthiha/mp_proctor.git'
+keywords:
+  - Eye Blink
+  - Face Orientation
+  - MediaPipe
+  - Proctoring
+  - Facial Activity
+  - Face Movement
+license: Apache-2.0
