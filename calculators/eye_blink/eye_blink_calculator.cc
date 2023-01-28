@@ -92,7 +92,7 @@ namespace mediapipe
 
         blink_map["left"] = l_dist;
         blink_map["right"] = r_dist;
-        blink_map["threshold"] = landmarks.landmark(1).x() * 0.0308 + landmarks.landmark(1).y() * 0.0803 + 0.1476;
+        blink_map["threshold"] = (-0.0228 * landmarks.landmark(1).x()) + (0.0162 * landmarks.landmark(1).y()) + (0.0792 * exp(pow(landmarks.landmark(1).y(), 2)));
 
         Packet packet = MakePacket<decltype(blink_map)>(blink_map).At(cc->InputTimestamp());
         cc->Outputs().Index(0).AddPacket(packet);
