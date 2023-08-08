@@ -9,6 +9,8 @@ This repository presents face analytic algorithms for proctoring purposes based 
 - Face Orientation (2 DoF, horizontal and vertical)
 - Facial Activity
 - Face Movement
+- Facial embeddings
+- Facial expression
 
 ## Requirement
 - Mediapipe v0.8.10.2 (Simply checkout on [this commit](https://github.com/google/mediapipe/commit/63e679d9))
