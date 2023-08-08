@@ -1,0 +1,116 @@
+# EXAMPLE:
+#   node {
+#     calculator: "FaceReidentificationCpu"
+#     input_stream: "IMAGE:image"
+#     input_stream: "LANDMARKS:face_landmarks"
+#     output_stream: "EMBED:embeddings"
+#     output_stream: "INTER:intermediate_tensor"
+#   }
+
+type: "FaceReidentificationCpu"
+
+# CPU image. (ImageFrame)
+input_stream: "IMAGE:input_video"
+# Face Landmarks. (NormalizedLandmarkList)
+input_stream: "LANDMARKS:face_landmarks"
+
+# Face Embeddings. (TFLiteTensors)
+output_stream: "EMBED:embeddings"
+# Optional Intermediate Embeddings for FaceAffectNet. (TFLiteTensors)
+output_stream: "INTER:intermediate_tensor"
+
+node {
+  calculator: "ImagePropertiesCalculator"
+  input_stream: "IMAGE:input_video"
+  output_stream: "SIZE:image_size"
+}
+
+node  {
+  calculator: "ConstantImageSizeCalculator"
+  input_stream: "TICK:input_video"
+  output_stream: "SIZE:mobile_facenet_input_size"
+  node_options: {
+    [type.googleapis.com/mediapipe.ConstantImageSizeCalculatorOptions] {
+      width: 112
+      height: 112
+    }
+  }
+}
+
+node {
+  calculator: "SimilarityTransformCalculator"
+  input_stream: "SIZE:image_size"
+  input_stream: "OUTPUT_SIZE:mobile_facenet_input_size"
+  input_stream: "LANDMARKS:face_landmarks"
+  output_stream: "TRANSFORM:similarity_transform"
+}
+
+node {
+  calculator: "WarpAffineCalculatorCpu"
+  input_stream: "IMAGE:input_video"
+  input_stream: "MATRIX:similarity_transform"
+  input_stream: "OUTPUT_SIZE:mobile_facenet_input_size"
+  output_stream: "IMAGE:transformed_image"
+  options: {
+    [mediapipe.WarpAffineCalculatorOptions.ext] {
+      border_mode: BORDER_ZERO
+    }
+  }
+}
+
+node {
+  calculator: "TfLiteConverterCalculator"
+  input_stream: "IMAGE:transformed_image"
+  output_stream: "TENSORS:image_tensor"
+  options {
+    [mediapipe.TfLiteConverterCalculatorOptions.ext] {
+      use_custom_normalization: true
+      custom_div: 128.0
+      custom_sub: 0.99609375
+    }
+  }
+}
+
+# Generates a single side packet containing a TensorFlow Lite op resolver that
+# supports custom ops needed by the model used in this graph.
+node {
+  calculator: "TfLiteCustomOpResolverCalculator"
+  output_side_packet: "op_resolver"
+  node_options: {
+    [type.googleapis.com/mediapipe.TfLiteCustomOpResolverCalculatorOptions] {
+      use_gpu: false
+    }
+  }
+}
+
+node {
+  calculator: "TfLiteInferenceCalculator"
+  input_stream: "TENSORS:image_tensor"
+  output_stream: "TENSORS:face_reid_tensors"
+  input_side_packet: "CUSTOM_OP_RESOLVER:op_resolver"
+  options: {
+    [mediapipe.TfLiteInferenceCalculatorOptions.ext] {
+      model_path: "mp_proctor/modules/face_reid/face_reid.tflite"
+      delegate { xnnpack {} }
+    }
+  }
+}
+
+node {
+  calculator: "SplitTfLiteTensorVectorCalculator"
+  input_stream: "face_reid_tensors"
+  output_stream: "intermediate_tensor"
+  output_stream: "embeddings_tensor"
+  options: {
+    [mediapipe.SplitVectorCalculatorOptions.ext] {
+      ranges: { begin: 0 end: 1 }
+      ranges: { begin: 1 end: 2 }
+    }
+  }
+}
+
+node {
+    calculator: "TfLiteTensorsToFloatsCalculator"
+    input_stream: "TENSORS:embeddings_tensor"
+    output_stream: "FLOATS:embeddings"
+  }

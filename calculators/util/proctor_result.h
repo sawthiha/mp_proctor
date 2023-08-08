@@ -15,6 +15,11 @@
 // Proctor Result structure
 #pragma once
 
+#include <vector>
+#include <memory>
+
+// #include "mediapipe/framework/formats/image_frame.h"
+
 struct ProctorResult
 {
     bool is_left_eye_blinking;
@@ -23,4 +28,7 @@ struct ProctorResult
     double vertical_align;
     double facial_activity;
     double face_movement;
+    std::vector<float> face_reid_embeddings;
+    std::vector<std::pair<std::string, float>> expressions;
+    // std::shared_ptr<mediapipe::ImageFrame> frame;
 };

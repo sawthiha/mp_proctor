@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package mediapipe;
+
+import "mediapipe/framework/calculator.proto";
+
+message ConstantImageSizeCalculatorOptions {
+  extend mediapipe.CalculatorOptions {
+    optional ConstantImageSizeCalculatorOptions ext = 340313099;
+  }
+
+  // Width of the generated Image
+  optional int32 width = 1 [default = 112];
+  // Height of the generated Image
+  optional int32 height = 2 [default = 112];
+
+}

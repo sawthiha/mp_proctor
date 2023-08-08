@@ -28,9 +28,11 @@ cc_library(
         "//mediapipe/framework/port:opencv_highgui",
         "//mediapipe/framework/port:opencv_imgproc",
         "//mediapipe/framework/port:opencv_video",
+        "//mediapipe/framework/formats:landmark_cc_proto",
         "//mediapipe/framework/port:parse_text_proto",
         "//mediapipe/framework/port:status",
         "//mp_proctor/calculators/util:proctor_result",
+        "//mp_proctor/calculators/util:face_align",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
     ],
@@ -40,6 +42,6 @@ cc_binary(
     name = "demo_app",
     deps = [
         ":demo",
-        "//mp_proctor/graphs/face_mesh/full:live_calculators",
+        "//mp_proctor/graphs:live_calculators",
     ],
 )

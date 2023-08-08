@@ -28,6 +28,8 @@
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/port/status.h"
 #include "mp_proctor/calculators/util/proctor_result.h"
+// #include "mp_proctor/calculators/util/face_align.h"
+#include "mediapipe/framework/formats/landmark.pb.h"
 
 constexpr char kInputStream[] = "input_video";
 constexpr char kOutputStream[] = "output_video";
@@ -63,7 +65,7 @@ absl::Status RunMPPGraph() {
   if (load_video) {
     capture.open(absl::GetFlag(FLAGS_input_video_path));
   } else {
-    capture.open(1);
+    capture.open(0);
   }
   RET_CHECK(capture.isOpened());
 
@@ -85,10 +87,15 @@ absl::Status RunMPPGraph() {
   ASSIGN_OR_RETURN(mediapipe::OutputStreamPoller results_poller,
                    graph.AddOutputStreamPoller("multi_face_proctor_results"));
 
+  // ASSIGN_OR_RETURN(mediapipe::OutputStreamPoller landmarks_poller,
+  //                  graph.AddOutputStreamPoller("image_size"));
+
   MP_RETURN_IF_ERROR(graph.StartRun({}));
 
   LOG(INFO) << "Start grabbing and processing frames.";
+  
   bool grab_frames = true;
+  int timeout = 0;
   while (grab_frames) {
     // Capture opencv camera or video frame.
     cv::Mat camera_frame_raw;
@@ -126,9 +133,14 @@ absl::Status RunMPPGraph() {
     {
       auto& results = results_packet.Get<std::vector<ProctorResult>>();
       for (auto& result: results)
-      {
-        // std::cout << result.is_right_eye_blinking << std::endl;
+      { 
+        // std::cout << frame_timestamp_us << std::endl;
       }
+      timeout = 0;
+    } else if(timeout < 20)
+    {
+      timeout++;
+      continue;
     }
 
     cv::Mat output_frame_mat;

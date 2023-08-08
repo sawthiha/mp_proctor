@@ -15,6 +15,9 @@
 // Calculator to annotate proctoring results
 #include <vector>
 #include <map>
+#include <sstream>
+#include <string>
+#include <iomanip> // For setting precision
 
 #include "absl/memory/memory.h"
 #include "mediapipe/framework/calculator_framework.h"
@@ -53,7 +56,8 @@ namespace mediapipe
     {
     private:
         void AnnotateBlink(RenderData& render_data, bool is_blinking, double left_pos);
-        void Annotateorientation(RenderData& render_data, std::string orientation, double left_pos);
+        void AnnotateOrientation(RenderData& render_data, std::string orientation, double left_pos);
+        void AnnotateExpressions(RenderData& render_data, const std::vector<std::pair<std::string,float>>& expressions);
 
     public:
         ProctorResultToRenderDataCalculator() = default;
@@ -105,7 +109,7 @@ namespace mediapipe
         text->set_baseline(0.25);
     } // AnnotateBlink
 
-    void ProctorResultToRenderDataCalculator::Annotateorientation(RenderData& render_data, std::string orientation, double left_pos)
+    void ProctorResultToRenderDataCalculator::AnnotateOrientation(RenderData& render_data, std::string orientation, double left_pos)
     {
         auto annotation = render_data.add_render_annotations();
         if(orientation == "Neutral")
@@ -130,6 +134,32 @@ namespace mediapipe
         text->set_baseline(0.2);
     }
 
+    void ProctorResultToRenderDataCalculator::AnnotateExpressions(RenderData& render_data, const std::vector<std::pair<std::string,float>>& expressions)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            std::stringstream ss;
+            ss << expressions[i].first << ": " << std::fixed << std::setprecision(2) << (expressions[i].second * 100.0);
+            auto annotation = render_data.add_render_annotations();
+            if(i == 0)
+            {
+                annotation->mutable_color()->set_r(0);
+                annotation->mutable_color()->set_g(255);
+                annotation->mutable_color()->set_b(0);
+            }
+            
+            annotation->set_thickness(4);
+            auto text = annotation->mutable_text();
+            text->set_font_height(0.02);
+            text->set_font_face(0);
+            text->set_display_text(ss.str());
+            text->set_normalized(true);
+            text->set_left(0.05);
+            // Normalized coordinates must be between 0.0 and 1.0, if they are used.
+            text->set_baseline(0.3 + (0.1 * i) );
+        }
+    }
+
     absl::Status ProctorResultToRenderDataCalculator::Process(CalculatorContext* cc)
     {
         RenderData render_data;
@@ -146,8 +176,10 @@ namespace mediapipe
         std::string ver_align = result.vertical_align >= 0.6 ? "Down":
                                 result.vertical_align <= -0.05 ? "Up":
                                 "Neutral";
-        this->Annotateorientation(render_data, hor_align, 0.05);
-        this->Annotateorientation(render_data, ver_align, 0.6);
+        this->AnnotateOrientation(render_data, hor_align, 0.05);
+        this->AnnotateOrientation(render_data, ver_align, 0.6);
+
+        this->AnnotateExpressions(render_data, result.expressions);
         
         Packet packet = MakePacket<decltype(render_data)>(render_data).At(cc->InputTimestamp());
         cc->Outputs().Tag(kRenderDataStreamTag).AddPacket(packet);

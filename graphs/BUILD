@@ -11,6 +11,78 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+load(
+    "//mediapipe/framework/tool:mediapipe_graph.bzl",
+    "mediapipe_binary_graph",
+)
+
 licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "custom_calculators",
+    deps = [
+        "//mp_proctor/calculators/util:landmark_standardization",
+        "//mp_proctor/calculators/face_orientation:face_orientation_calculator",
+        "//mp_proctor/calculators/eye_blink:eye_blink_calculator",
+        "//mp_proctor/calculators/face_activity:face_movement_calculator",
+        "//mp_proctor/calculators/face_activity:face_activity_calculator",
+        "//mp_proctor/calculators/util:proctor_result_calculator",
+        "//mp_proctor/calculators/util:proctor_result",
+        "//mp_proctor/calculators/util:similarity_transform_calculator",
+        "//mp_proctor/calculators/util:face_align",
+    ],
+)
+
+cc_library(name = "proctor_deps",
+    deps = [
+        "//mediapipe/calculators/core:constant_side_packet_calculator",
+        "//mediapipe/calculators/core:flow_limiter_calculator",
+        ":custom_calculators",
+        "//mp_proctor/modules/face_reid:face_reid_cpu",
+        "//mp_proctor/modules/face_affect:face_affect_cpu",
+    ] + select({
+        "//mediapipe/gpu:disable_gpu": [
+            "//mediapipe/modules/face_landmark:face_landmark_front_cpu",
+        ],
+        "//conditions:default": [
+            "//mediapipe/modules/face_landmark:face_landmark_front_gpu",
+        ],
+    }),
+)
+
+exports_files(
+    srcs = glob(
+        ["*.pbtxt"]
+    )
+)
+
+cc_library(
+    name = "live_calculators",
+    deps = [
+        ":proctor_deps",
+    ] + select({
+        "//mediapipe/gpu:disable_gpu": [
+            "//mp_proctor/graphs/subgraphs:face_renderer_cpu",
+        ],
+        "//conditions:default": [
+            "//mp_proctor/graphs/subgraphs:face_renderer_gpu",
+            "//mediapipe/gpu:gpu_buffer_to_image_frame_calculator",
+        ],
+    }),
+)
+
+mediapipe_binary_graph(
+    name = "face_mesh_mobile_gpu_binary_graph",
+    graph = "face_mesh_mobile.pbtxt",
+    output_name = "face_mesh_mobile_gpu.binarypb",
+    deps = [":live_calculators"],
+)
+
+filegroup(name = "face_mesh_data",
+    srcs = [
+        "//mediapipe/modules/face_detection:face_detection_short_range.tflite",
+        "//mediapipe/modules/face_landmark:face_landmark_with_attention.tflite",
+    ],
+)

@@ -1,0 +1,50 @@
+# EXAMPLE:
+#   node {
+#     calculator: "FaceAffectCpu"
+#     input_stream: "INTER:intermediate_tensor"
+#     output_stream: "EXP:expressions"
+#   }
+
+type: "FaceAffectCpu"
+
+# Intermediate Tensor from face_reid module. (TfLiteTensor)
+input_stream: "INTER:intermediate_tensor"
+
+# Facial Expressions. (ClassificationList)
+output_stream: "EXP:expressions"
+
+# Generates a single side packet containing a TensorFlow Lite op resolver that
+# supports custom ops needed by the model used in this graph.
+node {
+  calculator: "TfLiteCustomOpResolverCalculator"
+  output_side_packet: "op_resolver"
+  node_options: {
+    [type.googleapis.com/mediapipe.TfLiteCustomOpResolverCalculatorOptions] {
+      use_gpu: false
+    }
+  }
+}
+
+node {
+  calculator: "TfLiteInferenceCalculator"
+  input_stream: "TENSORS:intermediate_tensor"
+  output_stream: "TENSORS:expression_tensors"
+  input_side_packet: "CUSTOM_OP_RESOLVER:op_resolver"
+  options: {
+    [mediapipe.TfLiteInferenceCalculatorOptions.ext] {
+      model_path: "mp_proctor/modules/face_affect/face_affect.tflite"
+      delegate { xnnpack {} }
+    }
+  }
+}
+
+node  {
+  calculator: "TfLiteTensorsToClassificationCalculator"
+  input_stream: "TENSORS:expression_tensors"
+  output_stream: "CLASSIFICATIONS:expressions"
+  options {
+    [mediapipe.TfLiteTensorsToClassificationCalculatorOptions.ext] {
+      label_map_path: "mp_proctor/modules/face_affect/expressions_map.txt"
+    }
+  }
+}

@@ -35,7 +35,7 @@ bazel build -c opt --define MEDIAPIPE_DISABLE_GPU=1 mp_proctor:demo_app
 If there is no build error, you can run the application using the following command.
 ```sh
 GLOG_logtostderr=1 bazel-bin/mp_proctor/demo_app \                     
-  --calculator_graph_config_file=mp_proctor/graphs/face_mesh/full/face_mesh_desktop_live.pbtxt
+  --calculator_graph_config_file=mp_proctor/graphs/proctor_cpu.pbtxt
 ```
 
 ## Troubleshooting
