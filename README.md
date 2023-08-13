@@ -47,3 +47,20 @@ This error occurs when OpenCV installation or config is not detected. If you are
 chmod +x setup_opencv.sh
 ./setup_opencv.sh
 ```
+
+## Related Research Papers
+### Efficient Online Engagement Analytics Algorithm Toolkit That Can Run on Edge
+```txt
+@Article{a16020086,
+AUTHOR = {Thiha, Saw and Rajasekera, Jay},
+TITLE = {Efficient Online Engagement Analytics Algorithm Toolkit That Can Run on Edge},
+JOURNAL = {Algorithms},
+VOLUME = {16},
+YEAR = {2023},
+NUMBER = {2},
+ARTICLE-NUMBER = {86},
+URL = {https://www.mdpi.com/1999-4893/16/2/86},
+ISSN = {1999-4893},
+DOI = {10.3390/a16020086}
+}
+```

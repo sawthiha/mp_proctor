@@ -80,9 +80,11 @@ mediapipe_binary_graph(
     deps = [":live_calculators"],
 )
 
-filegroup(name = "face_mesh_data",
+filegroup(name = "proctor_data",
     srcs = [
         "//mediapipe/modules/face_detection:face_detection_short_range.tflite",
         "//mediapipe/modules/face_landmark:face_landmark_with_attention.tflite",
+        "//mp_proctor/modules/face_affect:face_affect.tflite",
+        "//mp_proctor/modules/face_reid:face_reid.tflite",
     ],
 )
