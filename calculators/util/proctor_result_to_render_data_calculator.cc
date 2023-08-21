@@ -57,7 +57,7 @@ namespace mediapipe
     private:
         void AnnotateBlink(RenderData& render_data, bool is_blinking, double left_pos);
         void AnnotateOrientation(RenderData& render_data, std::string orientation, double left_pos);
-        void AnnotateExpressions(RenderData& render_data, const std::vector<std::pair<std::string,float>>& expressions);
+        void AnnotateExpressions(RenderData& render_data, FacialExpression expressions[8]);
 
     public:
         ProctorResultToRenderDataCalculator() = default;
@@ -134,12 +134,46 @@ namespace mediapipe
         text->set_baseline(0.2);
     }
 
-    void ProctorResultToRenderDataCalculator::AnnotateExpressions(RenderData& render_data, const std::vector<std::pair<std::string,float>>& expressions)
+    void ProctorResultToRenderDataCalculator::AnnotateExpressions(
+        RenderData& render_data,
+        FacialExpression expressions[8]
+        // const std::vector<std::pair<std::string,float>>& expressions
+    )
     {
         for (size_t i = 0; i < 3; i++)
         {
             std::stringstream ss;
-            ss << expressions[i].first << ": " << std::fixed << std::setprecision(2) << (expressions[i].second * 100.0);
+            switch (expressions[i].type)
+            {
+            case FacialExpressionType::neutral:
+                ss << "Neutral";
+                break;
+            case FacialExpressionType::happy:
+                ss << "Happy";
+                break;
+            case FacialExpressionType::sad:
+                ss << "Sad";
+                break;
+            case FacialExpressionType::surprise:
+                ss << "Surprise";
+                break;
+            case FacialExpressionType::fear:
+                ss << "Fear";
+                break;
+            case FacialExpressionType::anger:
+                ss << "Anger";
+                break;
+            case FacialExpressionType::disgust:
+                ss << "Disgust";
+                break;
+            case FacialExpressionType::contempt:
+                ss << "Contempt";
+                break;
+            
+            default:
+                break;
+            }
+            ss << ": " << std::fixed << std::setprecision(2) << (expressions[i].probability * 100.0);
             auto annotation = render_data.add_render_annotations();
             if(i == 0)
             {

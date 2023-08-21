@@ -21,8 +21,6 @@
 #include "mediapipe/calculators/core/end_loop_calculator.h"
 #include "mediapipe/calculators/core/begin_loop_calculator.h"
 #include "proctor_result.h"
-// #include "mediapipe/framework/port/opencv_core_inc.h"
-// #include "mediapipe/framework/formats/image_frame_opencv.h"
 #include "mediapipe/framework/formats/classification.pb.h"
 
 namespace mediapipe
@@ -70,10 +68,9 @@ namespace mediapipe
         cc->Inputs().Tag("BLINK").Set<std::map<std::string, double>>();
         cc->Inputs().Tag("ACTIVE").Set<double>();
         cc->Inputs().Tag("MOVE").Set<double>();
-        // cc->Inputs().Tag("ALIGNED").Set<ImageFrame>();
         cc->Inputs().Tag("EMBED").Set<std::vector<float>>();
         cc->Inputs().Tag("EXP").Set<ClassificationList>();
-        // cc->Inputs().Tag("EXP").Set<std::vector<float>>();
+        
         cc->Outputs().Tag("RESULT").Set<ProctorResult>();
 
         return absl::OkStatus();
@@ -99,32 +96,27 @@ namespace mediapipe
         result.facial_activity = cc->Inputs().Tag("ACTIVE").Get<double>();
         result.face_movement = cc->Inputs().Tag("MOVE").Get<double>();
 
-        result.face_reid_embeddings = std::move(cc->Inputs().Tag("EMBED").Get<std::vector<float>>());
-
-        auto expressions = cc->Inputs().Tag("EXP").Get<ClassificationList>();
-        auto raw_expressions = expressions.mutable_classification();
-        std::sort(raw_expressions->begin(), raw_expressions->end(),
-              [](const Classification a, const Classification b) {
-                return a.score() > b.score();
-              });
-
-        for (int i = 0; i < raw_expressions->size(); i++)
+        if(!cc->Inputs().Tag("EMBED").IsEmpty())
         {
-            result.expressions.emplace_back(
-                raw_expressions->at(i).label(),
-                raw_expressions->at(i).score()
-            );
+            const auto& face_reid_embeddings = cc->Inputs().Tag("EMBED").Get<std::vector<float>>();
+            std::memcpy(result.face_reid_embeddings, face_reid_embeddings.data(), 128 * sizeof(float));
         }
+        
+        if(!cc->Inputs().Tag("EXP").IsEmpty())
+        {
+            auto expressions = cc->Inputs().Tag("EXP").Get<ClassificationList>();
+            auto raw_expressions = expressions.mutable_classification();
+            std::sort(raw_expressions->begin(), raw_expressions->end(),
+                  [](const Classification a, const Classification b) {
+                    return a.score() > b.score();
+                  });
 
-        // std::vector<std::pair<std::string, float>>::iterator it;
-
-        // for (it = result.expressions.begin(); it != result.expressions.end(); it++)
-        // {
-        //     std::cout << it->first    // string (key)
-        //             << ':'
-        //             << it->second   // string's value 
-        //             << std::endl;
-        // }
+            for (int i = 0; i < raw_expressions->size(); i++)
+            {
+                result.expressions[i].type = static_cast<FacialExpressionType>(raw_expressions->at(i).index());
+                result.expressions[i].probability = raw_expressions->at(i).score();
+            }
+        }
         
         Packet packet = MakePacket<decltype(result)>(result).At(cc->InputTimestamp()); 
         cc->Outputs().Tag("RESULT").AddPacket(packet);

@@ -48,6 +48,7 @@ cc_library(name = "proctor_deps",
         ],
         "//conditions:default": [
             "//mediapipe/modules/face_landmark:face_landmark_front_gpu",
+            "//mediapipe/gpu:gpu_buffer_to_image_frame_calculator",
         ],
     }),
 )
@@ -68,14 +69,13 @@ cc_library(
         ],
         "//conditions:default": [
             "//mp_proctor/graphs/subgraphs:face_renderer_gpu",
-            "//mediapipe/gpu:gpu_buffer_to_image_frame_calculator",
         ],
     }),
 )
 
 mediapipe_binary_graph(
     name = "face_mesh_mobile_gpu_binary_graph",
-    graph = "face_mesh_mobile.pbtxt",
+    graph = "proctor_gpu.pbtxt",
     output_name = "face_mesh_mobile_gpu.binarypb",
     deps = [":live_calculators"],
 )

@@ -23,6 +23,8 @@ keywords:
   - Proctoring
   - Facial Activity
   - Face Movement
+  - Facial Expressions
+  - Facial Embeddings
 license: Apache-2.0
 preferred-citation:
   authors:

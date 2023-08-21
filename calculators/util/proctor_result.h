@@ -13,12 +13,26 @@
 // limitations under the License.
 //
 // Proctor Result structure
-#pragma once
+#ifndef proctor_result_h
+#define proctor_result_h 
 
-#include <vector>
-#include <memory>
+enum FacialExpressionType
+{
+    neutral,
+    happy,
+    sad,
+    surprise,
+    fear,
+    anger,
+    disgust,
+    contempt
+};
 
-// #include "mediapipe/framework/formats/image_frame.h"
+struct FacialExpression
+{
+    enum FacialExpressionType type;
+    float probability;
+};
 
 struct ProctorResult
 {
@@ -28,7 +42,8 @@ struct ProctorResult
     double vertical_align;
     double facial_activity;
     double face_movement;
-    std::vector<float> face_reid_embeddings;
-    std::vector<std::pair<std::string, float>> expressions;
-    // std::shared_ptr<mediapipe::ImageFrame> frame;
+    float face_reid_embeddings[128];
+    struct FacialExpression expressions[8];
 };
+
+#endif
