@@ -85,6 +85,7 @@ filegroup(name = "proctor_data",
         "//mediapipe/modules/face_detection:face_detection_short_range.tflite",
         "//mediapipe/modules/face_landmark:face_landmark_with_attention.tflite",
         "//mp_proctor/modules/face_affect:face_affect.tflite",
+        "//mp_proctor/modules/face_affect:expressions_map.txt",
         "//mp_proctor/modules/face_reid:face_reid.tflite",
     ],
 )

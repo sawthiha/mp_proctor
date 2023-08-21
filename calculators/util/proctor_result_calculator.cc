@@ -15,6 +15,7 @@
 // Calculator to aggregate proctoring results
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 #include "mediapipe/framework/calculator_framework.h"
 #include "mediapipe/framework/port/status.h"
@@ -83,6 +84,7 @@ namespace mediapipe
 
     absl::Status ProctorResultCalculator::Process(CalculatorContext* cc)
     {
+
         ProctorResult result;
         auto blink = cc->Inputs().Tag("BLINK").Get<std::map<std::string, double>>();
         auto threshold = blink.at("threshold");
@@ -96,26 +98,20 @@ namespace mediapipe
         result.facial_activity = cc->Inputs().Tag("ACTIVE").Get<double>();
         result.face_movement = cc->Inputs().Tag("MOVE").Get<double>();
 
-        if(!cc->Inputs().Tag("EMBED").IsEmpty())
-        {
-            const auto& face_reid_embeddings = cc->Inputs().Tag("EMBED").Get<std::vector<float>>();
-            std::memcpy(result.face_reid_embeddings, face_reid_embeddings.data(), 128 * sizeof(float));
-        }
-        
-        if(!cc->Inputs().Tag("EXP").IsEmpty())
-        {
-            auto expressions = cc->Inputs().Tag("EXP").Get<ClassificationList>();
-            auto raw_expressions = expressions.mutable_classification();
-            std::sort(raw_expressions->begin(), raw_expressions->end(),
-                  [](const Classification a, const Classification b) {
-                    return a.score() > b.score();
-                  });
+        const auto& face_reid_embeddings = cc->Inputs().Tag("EMBED").Get<std::vector<float>>();
+        std::memcpy(result.face_reid_embeddings, face_reid_embeddings.data(), 128 * sizeof(float));
 
-            for (int i = 0; i < raw_expressions->size(); i++)
-            {
-                result.expressions[i].type = static_cast<FacialExpressionType>(raw_expressions->at(i).index());
-                result.expressions[i].probability = raw_expressions->at(i).score();
-            }
+        auto expressions = cc->Inputs().Tag("EXP").Get<ClassificationList>();
+        auto raw_expressions = expressions.mutable_classification();
+        std::sort(raw_expressions->begin(), raw_expressions->end(),
+                [](const Classification a, const Classification b) {
+                return a.score() > b.score();
+                });
+
+        for (int i = 0; i < raw_expressions->size(); i++)
+        {
+            result.expressions[i].type = static_cast<FacialExpressionType>(raw_expressions->at(i).index());
+            result.expressions[i].probability = raw_expressions->at(i).score();
         }
         
         Packet packet = MakePacket<decltype(result)>(result).At(cc->InputTimestamp()); 
