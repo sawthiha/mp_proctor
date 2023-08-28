@@ -50,6 +50,7 @@ chmod +x setup_opencv.sh
 
 ## Related Research Papers
 ### Efficient Online Engagement Analytics Algorithm Toolkit That Can Run on Edge
+Research Materials can be found on [this](https://github.com/sawthiha/r01_proctor_toolkit.git) repository.
 ```txt
 @Article{a16020086,
 AUTHOR = {Thiha, Saw and Rajasekera, Jay},
