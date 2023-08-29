@@ -11,11 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-load(
-    "//mediapipe/framework/tool:mediapipe_graph.bzl",
-    "mediapipe_binary_graph",
-)
-
 licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
@@ -48,7 +43,6 @@ cc_library(name = "proctor_deps",
         ],
         "//conditions:default": [
             "//mediapipe/modules/face_landmark:face_landmark_front_gpu",
-            "//mediapipe/gpu:gpu_buffer_to_image_frame_calculator",
         ],
     }),
 )
@@ -71,13 +65,6 @@ cc_library(
             "//mp_proctor/graphs/subgraphs:face_renderer_gpu",
         ],
     }),
-)
-
-mediapipe_binary_graph(
-    name = "face_mesh_mobile_gpu_binary_graph",
-    graph = "proctor_gpu.pbtxt",
-    output_name = "face_mesh_mobile_gpu.binarypb",
-    deps = [":live_calculators"],
 )
 
 filegroup(name = "proctor_data",
